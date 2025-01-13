@@ -1,23 +1,27 @@
 //function to display movie information on
-var movieInput = $("#movie-input")
-var findMovieButton = $("#find-movie")
+var movieInput = $("#movie-input");  // Get the movie input element
+var findMovieButton = $("#find-movie"); // Get the find movie button
+
+// Queue to track the sequence of searched movies
+let moviesQueue = []; 
+
 function displayMovieInfo(event) {
   event.preventDefault()
+  
   var movie = movieInput.val()
-  if (!movie.trim()) {
+ if (!movie.trim()) {
     alert("Please enter a movie title!"); // Alert if input is empty
     return;
+ }
   var queryURL = "https://www.omdbapi.com/?t=" + movie + "&apikey=df97ab33"
-    
-  // Queue to track the sequence of searched movies
-let moviesQueue = []; 
-    
+
+  
   // Fetch movie data from the API
   $.ajax({
     url: queryURL,
     method: "GET"
   }).then(function(response) {
-       if (response.Response === "True") {
+    if (response.Response === "True") {
       // If valid response, fetch the movie data
     console.log(response)
     $('#poster').html("<img src =' " + response.Poster + "' />");
@@ -49,12 +53,14 @@ let moviesQueue = [];
   });
 }
 
-  // Local Storage Handling
+$("#find-movie").on("click", displayMovieInfo);
+
+// Local Storage Handling
 function getRecentMovies() {
   return JSON.parse(localStorage.getItem("recentMovies")) || [];
 }
  
-  function addRecentMovie(movie) {
+function addRecentMovie(movie) {
   const recentMovies = getRecentMovies();
   recentMovies.push(movie);
 
@@ -62,10 +68,8 @@ function getRecentMovies() {
     recentMovies.shift();
   }
 
-      localStorage.setItem("recentMovies", JSON.stringify(recentMovies));
+  localStorage.setItem("recentMovies", JSON.stringify(recentMovies));
 }
-    
-$("#find-movie").on("click", displayMovieInfo)
 
   
 //Below code is for recent movies
@@ -77,7 +81,8 @@ function renderRecentMovies() {
   recentMovies.reverse();
   
   recentMovies.forEach((movie) => {
-    const movieCardHTML = `<div class="col">
+    const movieCardHTML = `
+    <div class="col">
       <div class="card movie-card">
         <img src="${movie.posterURL}" class="card-img-top poster" alt="${
       movie.title + " poster"
@@ -91,12 +96,9 @@ function renderRecentMovies() {
   });
 }
 
-window.onload = function () {
-  renderRecentMovies();
-};
-
+// Below code is for clearing Recent Movies
 function clearRecentMoviesAndReloadRecentMovies() {
-  localStorage.removeItem("recentMovies");
+  localStorage.removeItem("recentMovies"); // Clear from local storage
   renderRecentMovies();
 
   var myModalEl = document.getElementById("staticBackdrop");
